@@ -1295,15 +1295,15 @@ document.addEventListener('DOMContentLoaded', () => {
             this.audio = new Audio();
             this.audio.src = '如果忧郁是天赋_Music - 半故「前奏」.mp3';
             this.audio.loop = true;
-            this.useAudio = false;
+            this.useAudio = true; // Default to true to prioritize local MP3 file
             this.isPlaying = false;
             
-            // Check if audio file can be played
-            this.audio.addEventListener('canplaythrough', () => {
-                this.useAudio = true;
-            });
+            // Fallback to synth if there is an error loading the MP3
             this.audio.addEventListener('error', () => {
                 this.useAudio = false;
+                if (this.isPlaying) {
+                    this.synth.start();
+                }
             });
         }
         
@@ -1344,7 +1344,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Start background music on user's first window interaction
+    // WeChat browser autoplay support using WeixinJSBridge
+    const startWechatBgm = () => {
+        if (musicEnabled && !musicManager.isPlaying) {
+            musicManager.play();
+        }
+    };
+
+    if (window.WeixinJSBridge) {
+        try {
+            WeixinJSBridge.invoke('getNetworkType', {}, startWechatBgm, false);
+        } catch (e) {
+            document.addEventListener("WeixinJSBridgeReady", startWechatBgm, false);
+        }
+    } else {
+        document.addEventListener("WeixinJSBridgeReady", startWechatBgm, false);
+    }
+
+    // Start background music on user's first window interaction (fallback)
     const startAudioOnTouch = () => {
         if (musicEnabled && !musicManager.isPlaying) {
             musicManager.play();
