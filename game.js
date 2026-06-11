@@ -182,6 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. EVENT BINDINGS
     btnStartGame.addEventListener('click', () => {
         showScreen(gameScreen);
+        // Start background music and initialize SFX only after starting challenge
+        if (musicEnabled && !musicManager.isPlaying) {
+            musicManager.play();
+        }
+        sfxManager.init();
     });
 
     btnShowRules.addEventListener('click', () => {
@@ -1361,35 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // WeChat browser autoplay support using WeixinJSBridge
-    const startWechatBgm = () => {
-        if (musicEnabled && !musicManager.isPlaying) {
-            musicManager.play();
-        }
-        sfxManager.init(); // Initialize SFX audio context in WeChat
-    };
 
-    if (window.WeixinJSBridge) {
-        try {
-            WeixinJSBridge.invoke('getNetworkType', {}, startWechatBgm, false);
-        } catch (e) {
-            document.addEventListener("WeixinJSBridgeReady", startWechatBgm, false);
-        }
-    } else {
-        document.addEventListener("WeixinJSBridgeReady", startWechatBgm, false);
-    }
-
-    // Start background music on user's first window interaction (fallback)
-    const startAudioOnTouch = () => {
-        if (musicEnabled) {
-            musicManager.play();
-        }
-        sfxManager.init(); // Initialize SFX audio context on first screen interaction
-        window.removeEventListener('click', startAudioOnTouch);
-        window.removeEventListener('touchstart', startAudioOnTouch);
-    };
-    window.addEventListener('click', startAudioOnTouch);
-    window.addEventListener('touchstart', startAudioOnTouch);
 
     // ==========================================================================
     // PROCEDURAL AUDIO SOUND EFFECTS (SFX) SYNTHESIZER
