@@ -1310,9 +1310,8 @@ document.addEventListener('DOMContentLoaded', () => {
         play() {
             this.isPlaying = true;
             if (this.useAudio) {
-                this.audio.play().catch(() => {
-                    // Fallback to synthesized audio if autoplay blocked
-                    this.synth.start();
+                this.audio.play().catch((err) => {
+                    console.log("Audio autoplay blocked, waiting for user gesture:", err);
                 });
             } else {
                 this.synth.start();
@@ -1363,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start background music on user's first window interaction (fallback)
     const startAudioOnTouch = () => {
-        if (musicEnabled && !musicManager.isPlaying) {
+        if (musicEnabled) {
             musicManager.play();
         }
         window.removeEventListener('click', startAudioOnTouch);
