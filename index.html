@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>光钻白 · 齿间守护战 - 云南白药光钻白PRO牙膏 H5互动清洁体验</title>
+    <meta name="description" content="参与云南白药光钻白PRO牙膏H5互动小游戏，体验3抗美白与护龈双重核心功效，3天焕白10个色阶，绽放钻白闪耀笑容！">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Mobile-first Viewport Container -->
+    <main id="app-container" class="app-container">
+        
+        <!-- Floating BGM Toggle Button -->
+        <button id="btn-toggle-music" class="music-toggle-btn active" aria-label="切换音乐">
+            <span class="music-icon-note">🎵</span>
+            <span class="music-waves">
+                <span></span><span></span><span></span>
+            </span>
+        </button>
+
+        <!-- Background Decorative Elements -->
+        <div class="bg-gradient-mesh"></div>
+        <div class="bg-glow-orb orb-1"></div>
+        <div class="bg-glow-orb orb-2"></div>
+        <div class="bg-glow-orb orb-3"></div>
+        <div class="bg-petals-container" id="bg-petals"></div>
+
+        <!-- SCREEN 1: LOADING SCREEN -->
+        <section id="screen-loading" class="screen active">
+            <div class="loading-wrapper">
+                <img src="./logo白.png" alt="云南白药口腔健康" class="loading-logo" onerror="this.src='logo.png'; this.onerror=null;">
+                <div class="product-silhouette">
+                    <img src="./产品示意图1.png" alt="云南白药光钻白PRO牙膏" class="loading-product" id="loading-product-img">
+                </div>
+                <div class="loading-title">
+                    <h2>光钻白 · 齿间守护战</h2>
+                    <p>护口有方，钻白闪耀</p>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="loading-progress-fill"></div>
+                </div>
+                <p class="loading-text" id="loading-status-text">药理科技融合中...</p>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: START SCREEN -->
+        <section id="screen-start" class="screen">
+            <header class="app-header">
+                <img src="./logo白.png" alt="云南白药" class="brand-logo" onerror="this.src='logo.png'; this.onerror=null;">
+            </header>
+            
+            <div class="start-content">
+                <div class="hero-showcase">
+                    <img src="./产品示意图1.png" alt="光钻白PRO牙膏" class="hero-product-img">
+                    <div class="glow-halo"></div>
+                </div>
+
+                <div class="title-card">
+                    <h1 class="main-title">
+                        <span class="gradient-text">光钻白</span> · 齿间守护战
+                    </h1>
+                    <div class="slogan-badge">护口有方 · 钻白闪耀</div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <div class="feature-text">
+                            <h4>护口有方</h4>
+                            <p>云南白药活性提取物，修护口腔屏障</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <div class="feature-text">
+                            <h4>3抗美白</h4>
+                            <p>抗渍/抗牙结石/抗牙菌斑，闪耀色阶</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌸</div>
+                        <div class="feature-text">
+                            <h4>雪沁山茶</h4>
+                            <p>高端分层香氛，持久治愈芬芳</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-instruction">
+                    <p><strong>游戏玩法：</strong>在15秒内拖动牙膏刷清洁牙齿。扫除牙渍与菌斑，移动到红肿发炎处进行修护，点击浮动的山茶花释放全屏香氛，守护口腔健康！</p>
+                </div>
+
+                <div class="action-area">
+                    <button id="btn-start-game" class="btn btn-primary pulse">
+                        <span>开启钻白挑战</span>
+                        <div class="btn-shine"></div>
+                    </button>
+                    <button id="btn-show-rules" class="btn btn-secondary">
+                        <span>了解光钻白PRO</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: GAME SCREEN -->
+        <section id="screen-game" class="screen">
+            <!-- Game HUD / Top Bar -->
+            <header class="game-hud">
+                <div class="hud-item timer-box">
+                    <span class="hud-label">时间</span>
+                    <span id="game-timer" class="hud-value highlight">15s</span>
+                </div>
+                
+                <div class="hud-metrics">
+                    <div class="metric-container">
+                        <div class="metric-header">
+                            <span>💎 牙齿钻白度</span>
+                            <span id="txt-whiteness">0%</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div id="bar-whiteness" class="metric-progress-fill whiteness-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-container">
+                        <div class="metric-header">
+                            <span>🛡️ 口腔健康度</span>
+                            <span id="txt-health">50%</span>
+                        </div>
+                        <div class="metric-progress-bar">
+                            <div id="bar-health" class="metric-progress-fill health-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Game Main Canvas Container -->
+            <div class="game-canvas-wrapper" id="canvas-container">
+                <canvas id="game-canvas"></canvas>
+                
+                <!-- On-screen Tutorial Overlay (disappears after first movement) -->
+                <div id="game-tutorial" class="game-tutorial-overlay">
+                    <div class="tutorial-hand">👉</div>
+                    <p>滑动牙膏刷清洁牙齿，治愈红肿，点击山茶花！</p>
+                </div>
+
+                <!-- Combo / Action popups wrapper -->
+                <div id="popup-notifications"></div>
+            </div>
+
+            <!-- Game Controls & Scent Bar -->
+            <footer class="game-footer">
+                <div class="scent-bar-container">
+                    <div class="scent-label">🌸 雪沁山茶香气值:</div>
+                    <div class="scent-progress">
+                        <div id="bar-scent" class="scent-progress-fill" style="width: 20%;"></div>
+                    </div>
+                </div>
+                <div class="product-hint-card">
+                    <img src="./产品示意图1.png" alt="光钻白PRO" class="hint-product-thumb">
+                    <div class="hint-text">
+                        <h5>云南白药光钻白PRO牙膏</h5>
+                        <p id="dynamic-hint-text">正在使用【3抗美白配方】高效瓦解外源性牙渍...</p>
+                    </div>
+                </div>
+            </footer>
+        </section>
+
+        <!-- SCREEN 4: END SCREEN -->
+        <section id="screen-end" class="screen">
+            <div class="end-content">
+                <header class="app-header">
+                    <img src="./logo白.png" alt="云南白药" class="brand-logo" onerror="this.src='logo.png'; this.onerror=null;">
+                </header>
+
+                <div class="result-card glass">
+                    <div class="result-title">挑战完成！</div>
+                    
+                    <!-- Color grade animation/display -->
+                    <div class="score-main">
+                        <div class="whiteness-result">
+                            <span class="score-label">牙齿美白色阶</span>
+                            <div class="score-value-wrapper">
+                                <span class="score-prefix">+</span>
+                                <span id="end-whiteness-level" class="score-big">10</span>
+                                <span class="score-suffix">度</span>
+                            </div>
+                            <p class="score-sub-desc">仅需3天，焕白10个色阶</p>
+                        </div>
+                    </div>
+
+                    <!-- Metrics summary -->
+                    <div class="metrics-summary">
+                        <div class="summary-item">
+                            <span class="summary-icon">🛡️</span>
+                            <div class="summary-details">
+                                <div class="summary-name">口腔健康度</div>
+                                <div class="summary-bar-bg">
+                                    <div id="end-health-bar" class="summary-bar-fill health-fill"></div>
+                                </div>
+                                <span id="end-health-value" class="summary-val">100%</span>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-icon">🌸</span>
+                            <div class="summary-details">
+                                <div class="summary-name">口气清新度</div>
+                                <div class="summary-bar-bg">
+                                    <div id="end-scent-bar" class="summary-bar-fill scent-fill"></div>
+                                </div>
+                                <span id="end-scent-value" class="summary-val">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Title designation -->
+                    <div class="designation-box">
+                        <div class="designation-label">荣获称号</div>
+                        <div id="end-designation" class="designation-value">✨ 钻白闪耀守护官 ✨</div>
+                    </div>
+                </div>
+
+                <!-- Product Showcase -->
+                <div class="product-promo-box glass">
+                    <img src="./产品示意图1.png" alt="云南白药光钻白PRO" class="promo-product-img">
+                    <div class="promo-details">
+                        <h4>云南白药光钻白PRO牙膏</h4>
+                        <ul>
+                            <li><strong>护口有方：</strong>特含白药提取物，减退红肿出血，强韧口腔屏障</li>
+                            <li><strong>钻白闪耀：</strong>3抗祛渍配方，3天提升10个美白色阶</li>
+                            <li><strong>雪沁山茶：</strong>高端定制香氛，分层留香，治愈心情</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+
+                <!-- Actions -->
+                <div class="action-area">
+                    <button id="btn-restart" class="btn btn-secondary">
+                        <span>再试一次</span>
+                    </button>
+                    <button id="btn-buy" class="btn btn-primary pulse">
+                        <span>一键种草 / 立即购买</span>
+                        <div class="btn-shine"></div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RULES MODAL -->
+        <div id="rules-modal" class="modal-overlay">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <h3>云南白药光钻白PRO牙膏 · 产品详情</h3>
+                    <button id="btn-close-rules" class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="rules-section">
+                        <h5>📖 产品简介</h5>
+                        <p class="modal-desc" style="font-size: 11px; line-height: 1.5; color: rgba(255,255,255,0.85); margin-bottom: 0;">
+                            云南白药光钻白PRO牙膏，依托云南白药百年医药研发积淀，将专业制药科技融入口腔焕白护理，打造集抗渍、抗损、美白、清新于一体 of 专业口腔护理产品，专属雪沁山茶高端香型，以多重实证功效实现焕白与护齿双效兼顾，为牙齿带来高阶钻白光感，兼顾口腔健康与美学体验，适配日常多元口腔护理需求。
+                        </p>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <h5>🛡️ 1. 护口有方 —— 添加云南白药提取物</h5>
+                        <p class="modal-desc" style="font-size: 10px; line-height: 1.4; color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                            不是一支基础的美白牙膏，特别添加云南白药提取物，帮助强韧口腔健康屏障，减轻牙龈出血、牙龈肿痛、口腔黏膜损伤等口腔问题，有效抵御麻辣热烫、酸甜重口饮食刺激，无惧日常饮食困扰，想吃就吃，为牙齿焕白筑牢口腔健康根基。
+                        </p>
+                    </div>
+
+                    <div class="rules-section">
+                        <h5>💎 2. 钻白闪耀 —— 3抗美白配方</h5>
+                        <p class="modal-desc" style="font-size: 10px; line-height: 1.4; color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                            搭载3抗美白配方，精准实现抗渍、抗牙结石、抗牙菌斑，有效瓦解外源性牙渍，抑制牙菌斑与牙结石堆积，经实证3天提升10个美白色阶，让牙齿呈现通透钻白光感，亮白更持久。
+                        </p>
+                    </div>
+
+                    <div class="rules-section">
+                        <h5>🌸 3. 治愈系情绪香氛 —— 雪沁山茶</h5>
+                        <p class="modal-desc" style="font-size: 10px; line-height: 1.4; color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                            取自云南，定制高端专属香型「雪沁山茶」，采用轻奢调香工艺打造清冽淡雅的白山茶前调、清爽提神的椒样薄荷+留兰中调，以及温润高级的冰岛白茶+天竺葵后调，香气层次丰富、留香持久，温和不刺激口腔黏膜，悦己、自信、闪耀、自然、自由。
+                        </p>
+                    </div>
+
+                    <div class="rules-section qr-rules-section">
+                        <h5>💬 扫码关注微信二维码</h5>
+                        <div class="qr-img-wrapper">
+                            <img src="./微信二维码.png" alt="微信二维码" class="qr-code-img-small" onerror="this.style.display='none'">
+                        </div>
+                        <p class="qr-desc-small">如果需要更多产品及活动信息，可以扫描上方微信二维码</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-rules-ok" class="btn btn-primary">返回</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WECHAT SHOP QR CODE MODAL -->
+        <div id="shop-modal" class="modal-overlay">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <h3>微信店铺扫码购买</h3>
+                    <button id="btn-close-shop" class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-body qr-modal-body">
+                    <div class="qr-img-wrapper-large">
+                        <img src="./微信店铺.png" alt="微信店铺二维码" class="qr-code-img-large" onerror="this.style.display='none'">
+                    </div>
+                    <p class="qr-desc-large">长按识别或使用微信扫描上方二维码<br>进入云南白药微信官方店铺购买光钻白PRO牙膏</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-shop-ok" class="btn btn-primary">返回</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Game Logic Script -->
+    <script src="game.js"></script>
+</body>
+</html>
