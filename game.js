@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let pointer = { x: 0, y: 0, prevX: 0, prevY: 0, isDown: false, active: false };
     let tutorialDismissed = false;
+    let lastBrushSoundTime = 0;
     let animationFrameId = null;
     
     // Game elements arrays
@@ -472,6 +473,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!timerStarted) {
                 startCountdown();
             }
+            
+            // Play brushing swish sound effect (throttled to once every 90ms)
+            const timeNow = Date.now();
+            if (timeNow - lastBrushSoundTime > 90) {
+                const distMoved = Math.hypot(pointer.x - pointer.prevX, pointer.y - pointer.prevY);
+                if (distMoved > 1.5) {
+                    sfxManager.playBrush();
+                    lastBrushSoundTime = timeNow;
+                }
+            }
         }
 
         // Adjust Toothbrush Angle for brush dynamics
@@ -561,6 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             gn.currentRed = 0;
                             gn.active = false;
                             
+                            // Play healing arpeggio sound effect
+                            sfxManager.playHeal();
+                            
                             // Healed! Trigger splash
                             for (let k = 0; k < 12; k++) {
                                 createParticle(gn.x, gn.y, 'shield');
@@ -633,6 +647,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Popping Camellia Flower - Fragrance Bomb
     function popFlower(f) {
         f.active = false;
+        
+        // Play flower pop arpeggio sound effect
+        sfxManager.playPop();
         
         // Spawn gorgeous pink flower particle blast
         for (let i = 0; i < 20; i++) {
@@ -1336,6 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         musicEnabled = !musicEnabled;
         if (musicEnabled) {
             musicManager.play();
+            sfxManager.resume();
             btnToggleMusic.classList.add('active');
         } else {
             musicManager.pause();
@@ -1348,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicEnabled && !musicManager.isPlaying) {
             musicManager.play();
         }
+        sfxManager.init(); // Initialize SFX audio context in WeChat
     };
 
     if (window.WeixinJSBridge) {
@@ -1365,9 +1384,129 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicEnabled) {
             musicManager.play();
         }
+        sfxManager.init(); // Initialize SFX audio context on first screen interaction
         window.removeEventListener('click', startAudioOnTouch);
         window.removeEventListener('touchstart', startAudioOnTouch);
     };
     window.addEventListener('click', startAudioOnTouch);
     window.addEventListener('touchstart', startAudioOnTouch);
+
+    // ==========================================================================
+    // PROCEDURAL AUDIO SOUND EFFECTS (SFX) SYNTHESIZER
+    // ==========================================================================
+
+    class SfxManager {
+        constructor() {
+            this.ctx = null;
+        }
+        
+        init() {
+            if (this.ctx) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    this.ctx = new AudioContext();
+                }
+            } catch (e) {
+                console.error("SFX Web Audio API not supported", e);
+            }
+        }
+        
+        resume() {
+            if (this.ctx && this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        }
+        
+        playBrush() {
+            this.init();
+            this.resume();
+            if (!this.ctx) return;
+            
+            const ctx = this.ctx;
+            const now = ctx.currentTime;
+            
+            // Short bandpass-filtered noise burst for brushing shhh-shhh
+            const bufferSize = ctx.sampleRate * 0.08;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1200 + Math.random() * 600, now);
+            filter.Q.setValueAtTime(2.5, now);
+            
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+            
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            
+            source.start(now);
+        }
+        
+        playHeal() {
+            this.init();
+            this.resume();
+            if (!this.ctx) return;
+            
+            const ctx = this.ctx;
+            const now = ctx.currentTime;
+            
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(280, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // slides up rapidly
+            
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
+        
+        playPop() {
+            this.init();
+            this.resume();
+            if (!this.ctx) return;
+            
+            const ctx = this.ctx;
+            const now = ctx.currentTime;
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5-E5-G5-C6 arpeggio
+            
+            notes.forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+                
+                gain.gain.setValueAtTime(0, now + idx * 0.05);
+                gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.05 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start(now + idx * 0.05);
+                osc.stop(now + idx * 0.05 + 0.25);
+            });
+        }
+    }
+
+    const sfxManager = new SfxManager();
 });
